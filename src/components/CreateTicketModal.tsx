@@ -38,8 +38,8 @@ export const CreateTicketModal = ({ isOpen, onClose, user, onCreate }: CreateTic
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
 
-      if (file.size > 500000) {
-        alert('File is too large (max 500KB)');
+      if (file.size > 10000000) {
+        alert('File is too large (max 10MB)');
         return;
       }
 
