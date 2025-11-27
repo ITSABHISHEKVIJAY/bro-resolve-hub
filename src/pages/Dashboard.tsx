@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Ticket, User, Notification } from '@/types/ticket';
+import { Ticket, User, Notification, HistoryEntry } from '@/types/ticket';
 import { LocalDB, exportCSV } from '@/lib/storage';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { StaffAnalytics } from '@/components/StaffAnalytics';
@@ -54,14 +54,86 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
       status: 'Pending' as const,
       timestamp: Date.now(),
       comments: [],
+      history: [{
+        action: 'Ticket Created',
+        author: user.displayName,
+        role: user.role,
+        time: Date.now(),
+      }],
     };
     setTickets(prev => [t, ...prev]);
     addNotify(`Ticket #${t.id} Created`);
   };
 
   const handleUpdate = (id: string, updates: Partial<Ticket>) => {
-    setTickets(prev => prev.map(t => (t.id === id ? { ...t, ...updates } : t)));
-    if (selectedTicket?.id === id) setSelectedTicket(prev => (prev ? { ...prev, ...updates } : null));
+    setTickets(prev => prev.map(t => {
+      if (t.id === id) {
+        const historyEntries: HistoryEntry[] = [];
+        
+        if (updates.status && updates.status !== t.status) {
+          historyEntries.push({
+            action: `Status changed to ${updates.status}`,
+            author: user.displayName,
+            role: user.role,
+            time: Date.now(),
+          });
+        }
+        
+        if (updates.priority && updates.priority !== t.priority) {
+          historyEntries.push({
+            action: `Priority changed to ${updates.priority}`,
+            author: user.displayName,
+            role: user.role,
+            time: Date.now(),
+          });
+        }
+        
+        if (updates.comments && updates.comments.length > t.comments.length) {
+          historyEntries.push({
+            action: 'Comment added',
+            author: user.displayName,
+            role: user.role,
+            time: Date.now(),
+          });
+        }
+        
+        if (updates.resolutionSummary) {
+          historyEntries.push({
+            action: 'Ticket resolved',
+            author: user.displayName,
+            role: user.role,
+            time: Date.now(),
+            details: updates.resolutionSummary,
+          });
+        }
+        
+        return {
+          ...t,
+          ...updates,
+          history: [...(t.history || []), ...historyEntries],
+        };
+      }
+      return t;
+    }));
+    
+    if (selectedTicket?.id === id) {
+      setSelectedTicket(prev => {
+        if (!prev) return null;
+        const historyEntries: HistoryEntry[] = [];
+        
+        if (updates.status && updates.status !== prev.status) {
+          historyEntries.push({
+            action: `Status changed to ${updates.status}`,
+            author: user.displayName,
+            role: user.role,
+            time: Date.now(),
+          });
+        }
+        
+        return { ...prev, ...updates, history: [...(prev.history || []), ...historyEntries] };
+      });
+    }
+    
     if (updates.status === 'Resolved') addNotify(`Ticket #${id} Resolved`);
   };
 
