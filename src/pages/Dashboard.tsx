@@ -66,7 +66,7 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
   };
 
   const myTickets = user.role === 'student' 
-    ? tickets.filter(t => t.studentId === user.name) 
+    ? tickets.filter(t => t.studentId === user.name && t.status !== 'Resolved') 
     : tickets.filter(t => t.status !== 'Resolved');
 
   return (
