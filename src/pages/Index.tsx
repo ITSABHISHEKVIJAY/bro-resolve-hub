@@ -1,14 +1,40 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { User } from '@/types/ticket';
+import { LocalDB } from '@/lib/storage';
+import { Landing } from '@/components/Landing';
+import { AuthForm } from '@/components/AuthForm';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import Dashboard from './Dashboard';
 
 const Index = () => {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [user, setUser] = useState<User | null>(LocalDB.getSession());
+  const [authModal, setAuthModal] = useState<'student' | 'staff' | null>(null);
+
+  const handleLogin = (profile: User) => {
+    setUser(profile);
+    LocalDB.setSession(profile);
+    setAuthModal(null);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    LocalDB.clearSession();
+  };
+
+  if (!user) {
+    return (
+      <>
+        <Landing onAccess={role => setAuthModal(role)} />
+        <Dialog open={!!authModal} onOpenChange={() => setAuthModal(null)}>
+          <DialogContent className="glass border-border">
+            {authModal && <AuthForm role={authModal} onSuccess={handleLogin} />}
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  return <Dashboard user={user} onLogout={handleLogout} />;
 };
 
 export default Index;
