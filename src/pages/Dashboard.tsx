@@ -7,7 +7,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { TicketCard } from '@/components/TicketCard';
 import { CreateTicketModal } from '@/components/CreateTicketModal';
 import { TicketDetail } from '@/components/TicketDetail';
-import { Zap, Power, Download, RotateCcw, History, ChevronDown, ChevronUp } from 'lucide-react';
+import { Zap, Power, Download, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface DashboardProps {
@@ -22,7 +22,6 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
   const [modals, setModals] = useState({ create: false, settings: false });
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     LocalDB.saveTickets(tickets);
@@ -139,12 +138,8 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
   };
 
   const myTickets = user.role === 'student' 
-    ? tickets.filter(t => t.studentId === user.name && t.status !== 'Resolved') 
-    : tickets.filter(t => t.status !== 'Resolved');
-
-  const resolvedTickets = user.role === 'student'
-    ? tickets.filter(t => t.studentId === user.name && t.status === 'Resolved')
-    : tickets.filter(t => t.status === 'Resolved');
+    ? tickets.filter(t => t.studentId === user.name) 
+    : tickets;
 
   return (
     <div className="min-h-screen">
@@ -209,11 +204,13 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
         </div>
 
         {/* Kanban Board */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {(['Pending', 'In Progress'] as const).map(status => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {(['Pending', 'In Progress', 'Resolved'] as const).map(status => (
             <div
               key={status}
-              className="glass-panel p-4 rounded-xl border-t-4 border-primary"
+              className={`glass-panel p-4 rounded-xl border-t-4 ${
+                status === 'Resolved' ? 'border-success' : 'border-primary'
+              }`}
             >
               <h3 className="font-bold text-muted-foreground mb-4 flex justify-between">
                 {status}
@@ -231,31 +228,6 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
             </div>
           ))}
         </div>
-
-        {/* History Section */}
-        {resolvedTickets.length > 0 && (
-          <div className="mt-8">
-            <button
-              onClick={() => setShowHistory(!showHistory)}
-              className="flex items-center gap-2 text-lg font-bold text-foreground mb-4 hover:text-primary transition"
-            >
-              <History className="w-5 h-5" />
-              History
-              <span className="bg-card px-2 rounded text-xs py-0.5 text-muted-foreground">
-                {resolvedTickets.length}
-              </span>
-              {showHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
-            
-            {showHistory && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {resolvedTickets.map(t => (
-                  <TicketCard key={t.id} ticket={t} onClick={setSelectedTicket} />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
       </main>
 
