@@ -46,12 +46,10 @@ export const TicketCard = ({ ticket, onClick }: TicketCardProps) => {
           {ticket.category}
         </span>
         <span
-          className={`text-xs font-semibold px-3 py-1 rounded-full ${
+          className={`text-[10px] px-2 py-0.5 rounded-full ${
             ticket.status === 'Resolved'
-              ? 'bg-success/20 text-success border border-success/30'
-              : ticket.status === 'In Progress'
-              ? 'bg-warning/20 text-warning border border-warning/30'
-              : 'bg-primary/20 text-primary border border-primary/30'
+              ? 'bg-success/20 text-success'
+              : 'bg-muted text-muted-foreground'
           }`}
         >
           {ticket.status}
