@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Ticket } from '@/types/ticket';
-import { Clock, Star } from 'lucide-react';
+import { Clock, Star, Tag } from 'lucide-react';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -59,6 +59,20 @@ export const TicketCard = ({ ticket, onClick }: TicketCardProps) => {
       <h4 className="font-bold text-foreground text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">
         {ticket.title}
       </h4>
+
+      {ticket.tags && ticket.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2">
+          {ticket.tags.map((tag, idx) => (
+            <span
+              key={idx}
+              className="text-[9px] px-1.5 py-0.5 bg-primary/10 text-primary rounded border border-primary/20 flex items-center gap-0.5"
+            >
+              <Tag className="w-2.5 h-2.5" />
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
 
       {sla && (
         <div

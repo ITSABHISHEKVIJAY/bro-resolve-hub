@@ -6,7 +6,8 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Lightbulb, Paperclip } from 'lucide-react';
+import { Lightbulb, Paperclip, Sparkles } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const CATEGORIES = ['Technical', 'Curriculum', 'Facility', 'Career', 'Other'];
 
@@ -21,7 +22,9 @@ export const CreateTicketModal = ({ isOpen, onClose, user, onCreate }: CreateTic
   const [form, setForm] = useState({ title: '', desc: '', category: 'Technical', priority: 'Low' });
   const [suggestions, setSuggestions] = useState<typeof KNOWLEDGE_BASE>([]);
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (form.title.length > 2) {
@@ -53,13 +56,54 @@ export const CreateTicketModal = ({ isOpen, onClose, user, onCreate }: CreateTic
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ai = mockAiPriority(form.title + ' ' + form.desc);
-    onCreate({ ...form, ...ai, attachments });
-    onClose();
-    setForm({ title: '', desc: '', category: 'Technical', priority: 'Low' });
-    setAttachments([]);
+    setIsAnalyzing(true);
+
+    try {
+      // Call AI categorization
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/categorize-ticket`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: form.title,
+            description: form.desc,
+          }),
+        }
+      );
+
+      let tags: string[] = ['Uncategorized'];
+      if (response.ok) {
+        const data = await response.json();
+        tags = data.tags || ['Uncategorized'];
+        console.log('AI-generated tags:', tags);
+      }
+
+      const ai = mockAiPriority(form.title + ' ' + form.desc);
+      onCreate({ ...form, ...ai, attachments, tags });
+      
+      toast({
+        title: "Ticket Created",
+        description: `Auto-tagged as: ${tags.join(', ')}`,
+      });
+
+      onClose();
+      setForm({ title: '', desc: '', category: 'Technical', priority: 'Low' });
+      setAttachments([]);
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      const ai = mockAiPriority(form.title + ' ' + form.desc);
+      onCreate({ ...form, ...ai, attachments, tags: ['Uncategorized'] });
+      onClose();
+      setForm({ title: '', desc: '', category: 'Technical', priority: 'Low' });
+      setAttachments([]);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -137,8 +181,15 @@ export const CreateTicketModal = ({ isOpen, onClose, user, onCreate }: CreateTic
               ))}
             </div>
           )}
-          <Button type="submit" className="w-full">
-            Submit Ticket
+          <Button type="submit" className="w-full" disabled={isAnalyzing}>
+            {isAnalyzing ? (
+              <>
+                <Sparkles className="w-4 h-4 animate-pulse" />
+                Analyzing & Creating...
+              </>
+            ) : (
+              'Submit Ticket'
+            )}
           </Button>
         </form>
       </DialogContent>
