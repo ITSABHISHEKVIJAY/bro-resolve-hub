@@ -104,6 +104,33 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
       <main className="p-6 max-w-7xl mx-auto">
         {user.role === 'staff' && <StaffAnalytics tickets={tickets} />}
         
+        {/* Student Status Summary */}
+        {user.role === 'student' && (
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="glass-panel p-4 rounded-xl border-l-4 border-primary">
+              <div className="text-xs text-muted-foreground mb-1">Pending</div>
+              <div className="text-2xl font-bold text-foreground">
+                {myTickets.filter(t => t.status === 'Pending').length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Awaiting response</div>
+            </div>
+            <div className="glass-panel p-4 rounded-xl border-l-4 border-warning">
+              <div className="text-xs text-muted-foreground mb-1">In Progress</div>
+              <div className="text-2xl font-bold text-foreground">
+                {myTickets.filter(t => t.status === 'In Progress').length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Being worked on</div>
+            </div>
+            <div className="glass-panel p-4 rounded-xl border-l-4 border-success">
+              <div className="text-xs text-muted-foreground mb-1">Resolved</div>
+              <div className="text-2xl font-bold text-foreground">
+                {resolvedTickets.length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">Completed tickets</div>
+            </div>
+          </div>
+        )}
+        
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-foreground">
             {user.role === 'staff' ? 'Ticket Queue' : 'My Requests'}
