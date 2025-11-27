@@ -7,7 +7,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { TicketCard } from '@/components/TicketCard';
 import { CreateTicketModal } from '@/components/CreateTicketModal';
 import { TicketDetail } from '@/components/TicketDetail';
-import { Zap, Power, Download, RotateCcw } from 'lucide-react';
+import { Zap, Power, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface DashboardProps {
@@ -37,13 +37,6 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
 
   const addNotify = (msg: string) =>
     setNotifications(p => [{ text: msg, time: Date.now(), read: false }, ...p]);
-
-  const handleReset = () => {
-    if (window.confirm('Reset all tickets and analytics? This cannot be undone.')) {
-      setTickets([]);
-      addNotify('All tickets cleared');
-    }
-  };
 
   const handleCreate = (data: any) => {
     const t: Ticket = {
@@ -108,26 +101,15 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
             </Button>
           )}
           {user.role === 'staff' && (
-            <div className="flex gap-2">
-              <Button
-                onClick={handleReset}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Reset
-              </Button>
-              <Button
-                onClick={() => exportCSV(tickets)}
-                variant="outline"
-                size="sm"
-                className="gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export
-              </Button>
-            </div>
+            <Button
+              onClick={() => exportCSV(tickets)}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
           )}
         </div>
 
