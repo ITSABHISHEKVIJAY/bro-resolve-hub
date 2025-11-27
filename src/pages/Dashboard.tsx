@@ -58,7 +58,9 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
     if (updates.status === 'Resolved') addNotify(`Ticket #${id} Resolved`);
   };
 
-  const myTickets = user.role === 'student' ? tickets.filter(t => t.studentId === user.name) : tickets;
+  const myTickets = user.role === 'student' 
+    ? tickets.filter(t => t.studentId === user.name) 
+    : tickets.filter(t => t.status !== 'Resolved');
 
   return (
     <div className="min-h-screen">
