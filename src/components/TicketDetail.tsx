@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Ticket, User } from '@/types/ticket';
-import { X, Phone, Mail, CheckCircle, Send, Star, Image as ImageIcon, FileText, Tag } from 'lucide-react';
+import { X, Phone, Mail, CheckCircle, Send, Star, Image as ImageIcon, FileText, Tag, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -244,6 +244,36 @@ export const TicketDetail = ({ ticket, isOpen, onClose, user, onUpdate }: Ticket
               </div>
             )}
           </div>
+
+          {/* Ticket History */}
+          {ticket.history && ticket.history.length > 0 && (
+            <div className="bg-card/30 p-4 rounded-lg">
+              <h4 className="text-xs font-bold text-muted-foreground uppercase mb-3 flex items-center gap-2">
+                <Clock className="w-3 h-3" /> Ticket History
+              </h4>
+              <div className="space-y-3">
+                {ticket.history.map((entry, idx) => (
+                  <div key={idx} className="flex gap-3 text-sm">
+                    <div className="flex flex-col items-center">
+                      <div className="w-2 h-2 rounded-full bg-primary mt-1.5" />
+                      {idx < ticket.history!.length - 1 && (
+                        <div className="w-px h-full bg-border/50 mt-1" />
+                      )}
+                    </div>
+                    <div className="flex-1 pb-3">
+                      <p className="text-foreground font-medium">{entry.action}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        by {entry.author} • {new Date(entry.time).toLocaleString()}
+                      </p>
+                      {entry.details && (
+                        <p className="text-xs text-foreground/70 mt-1 italic">{entry.details}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Activity Log */}
           <div>

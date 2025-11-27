@@ -16,6 +16,14 @@ export interface Comment {
   time: number;
 }
 
+export interface HistoryEntry {
+  action: string;
+  author: string;
+  role: string;
+  time: number;
+  details?: string;
+}
+
 export interface Ticket {
   id: string;
   title: string;
@@ -35,6 +43,7 @@ export interface Ticket {
   rating?: number;
   ratingComment?: string;
   tags?: string[];
+  history?: HistoryEntry[];
 }
 
 export interface User {
