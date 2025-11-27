@@ -34,6 +34,7 @@ export interface Ticket {
   resolvedAt?: string;
   rating?: number;
   ratingComment?: string;
+  tags?: string[];
 }
 
 export interface User {

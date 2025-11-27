@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Ticket, User } from '@/types/ticket';
-import { X, Phone, Mail, CheckCircle, Send, Star, Image as ImageIcon, FileText } from 'lucide-react';
+import { X, Phone, Mail, CheckCircle, Send, Star, Image as ImageIcon, FileText, Tag } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -207,6 +207,25 @@ export const TicketDetail = ({ ticket, isOpen, onClose, user, onUpdate }: Ticket
           <div className="bg-card/30 p-4 rounded-lg">
             <h4 className="text-xs font-bold text-muted-foreground uppercase mb-2">Issue Details</h4>
             <p className="text-sm text-foreground whitespace-pre-wrap">{ticket.desc}</p>
+            
+            {ticket.tags && ticket.tags.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border/50">
+                <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                  <Tag className="w-3 h-3" /> AI-Generated Tags:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {ticket.tags.map((tag, idx) => (
+                    <span
+                      key={idx}
+                      className="text-xs px-2 py-1 bg-primary/10 text-primary rounded border border-primary/20"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {ticket.attachments && ticket.attachments.length > 0 && (
               <div className="mt-3 pt-3 border-t border-border">
                 <p className="text-xs text-muted-foreground mb-1">Attachments:</p>

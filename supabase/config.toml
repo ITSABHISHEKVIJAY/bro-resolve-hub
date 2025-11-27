@@ -1,1 +1,4 @@
 project_id = "gwriantuhxulevmfacup"
+
+[functions.categorize-ticket]
+verify_jwt = false
