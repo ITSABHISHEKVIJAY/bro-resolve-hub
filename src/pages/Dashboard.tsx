@@ -7,8 +7,9 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { TicketCard } from '@/components/TicketCard';
 import { CreateTicketModal } from '@/components/CreateTicketModal';
 import { TicketDetail } from '@/components/TicketDetail';
-import { Zap, Power, Download, RotateCcw } from 'lucide-react';
+import { Zap, Power, Download, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface DashboardProps {
   user: User;
@@ -22,6 +23,7 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
   const [modals, setModals] = useState({ create: false, settings: false });
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showResolved, setShowResolved] = useState(false);
 
   useEffect(() => {
     LocalDB.saveTickets(tickets);
@@ -68,6 +70,10 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
   const myTickets = user.role === 'student' 
     ? tickets.filter(t => t.studentId === user.name && t.status !== 'Resolved') 
     : tickets.filter(t => t.status !== 'Resolved');
+
+  const resolvedTickets = user.role === 'student'
+    ? tickets.filter(t => t.studentId === user.name && t.status === 'Resolved')
+    : tickets.filter(t => t.status === 'Resolved');
 
   return (
     <div className="min-h-screen">
@@ -156,6 +162,37 @@ export default function Dashboard({ user: initialUser, onLogout }: DashboardProp
             </div>
           ))}
         </div>
+
+        {/* Resolved Tickets Section */}
+        {resolvedTickets.length > 0 && (
+          <Collapsible open={showResolved} onOpenChange={setShowResolved} className="mt-8">
+            <CollapsibleTrigger className="w-full">
+              <div className="glass-panel p-4 rounded-xl border border-success/30 hover:border-success/50 transition cursor-pointer flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                    <span className="text-success font-bold">{resolvedTickets.length}</span>
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-bold text-foreground">Resolved Tickets</h3>
+                    <p className="text-xs text-muted-foreground">View your ticket history</p>
+                  </div>
+                </div>
+                {showResolved ? (
+                  <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                )}
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {resolvedTickets.map(t => (
+                  <TicketCard key={t.id} ticket={t} onClick={setSelectedTicket} />
+                ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </main>
 
       {/* Modals */}
